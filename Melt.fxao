@@ -1,0 +1,69 @@
+// Melt
+
+//@Begin_vertex
+#ifdef GL_ES
+ precision mediump float;
+#endif
+uniform mat4 transformMatrix;
+uniform mat4 projectionMatrix;
+
+attribute vec4 position;
+attribute vec2 texCoord;
+varying vec2 textureCoordinate;
+
+void main(void)
+{
+	textureCoordinate = texCoord;
+	gl_Position = projectionMatrix * transformMatrix * position;
+}
+//@End
+//@Begin_fragment
+#ifdef GL_ES
+ precision mediump float;
+#endif
+varying vec2 textureCoordinate;
+uniform sampler2D imgTexture;
+
+// Global variables
+uniform float intensity;
+uniform float amplitude;
+uniform float periods;
+uniform float frequency;
+
+uniform vec4 colorA;
+uniform vec4 colorB;
+
+void main(void)
+{
+  float blur=0.01;
+
+  // Background
+    // float4 back = texture2D(bkd,textureCoordinate);
+  // Foreground
+    // fore = texture2D(img,textureCoordinate);
+
+  // Sin
+    float sinX = textureCoordinate.x;
+    float sinY = textureCoordinate.y + (sin((textureCoordinate.y+frequency)*periods)*amplitude);
+    vec2 sinE = vec2(sinX,sinY);
+
+  // Warp
+    vec4 TexTL; vec4 TexBL; vec4 TexBR; vec4 TexTR;
+    vec4 TexBTL; vec4 TexBBL; vec4 TexBBR; vec4 TexBTR;
+    TexTL.rgba = texture2D(imgTexture, vec2(sinE.x-blur,sinE.y-blur));
+    TexBL.rgba = texture2D(imgTexture, vec2(sinE.x-blur,sinE.y+blur));
+    TexBR.rgba = texture2D(imgTexture, vec2(sinE.x+blur,sinE.y+blur));
+    TexTR.rgba = texture2D(imgTexture, vec2(sinE.x+blur,sinE.y-blur));
+    vec4 fore = texture2D(imgTexture, sinE.xy);
+    fore.rgba = (fore.rgba+TexTL.rgba+TexBL.rgba+TexBR.rgba+TexTR.rgba)/5.0;
+
+  // Apply Color
+    float md = (frequency*10.0)+(sinE.y*3.0);
+    float tick = cos(md);
+    vec3 melt = mix(fore.rgb+(colorB.rgb*0.5),fore.rgb*(colorA.rgb*2.0),sinE.y);
+    vec3 anim = mix(melt,fore.rgb,tick);
+    fore.rgb = mix(fore.rgb,anim,intensity);
+
+  gl_FragColor = fore;
+}
+//@End
