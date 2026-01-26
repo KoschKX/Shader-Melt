@@ -13,8 +13,8 @@ varying vec2 textureCoordinate;
 
 void main(void)
 {
-	  textureCoordinate = texCoord;
-	  gl_Position = projectionMatrix * transformMatrix * position;
+	textureCoordinate = texCoord;
+	gl_Position = projectionMatrix * transformMatrix * position;
 }
 //@End
 //@Begin_fragment
