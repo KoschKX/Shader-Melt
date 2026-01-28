@@ -33,14 +33,15 @@ uniform float frequency;
 uniform vec4 colorA;
 uniform vec4 colorB;
 
+uniform float fade;
+uniform float trans;
+
 void main(void)
 {
   float blur=0.01;
 
-  // Background
-    // float4 back = texture2D(bkd,textureCoordinate);
-  // Foreground
-    // fore = texture2D(img,textureCoordinate);
+  // Original Color
+    vec4 ocol = texture2D(imgTexture, textureCoordinate);
 
   // Sin
     float sinX = textureCoordinate.x;
@@ -63,6 +64,10 @@ void main(void)
     vec3 melt = mix(fore.rgb+(colorB.rgb*0.5),fore.rgb*(colorA.rgb*2.0),sinE.y);
     vec3 anim = mix(melt,fore.rgb,tick);
     fore.rgb = mix(fore.rgb,anim,intensity);
+
+  // FADE
+    fore.rgb = mix(ocol.rgb,fore.rgb,clamp(fade,0.0,1.0));
+    fore.a = fore.a*clamp(trans,0.0,1.0);
 
   gl_FragColor = fore;
 }
