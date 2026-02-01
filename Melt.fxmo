@@ -28,6 +28,7 @@ void main()
 #endif
 in vec2 textureCoordinate;
 uniform sampler2D imgTexture;
+uniform sampler2D bckgTexture;
 
 // Global variables
 uniform float intensity;
